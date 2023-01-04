@@ -14,7 +14,7 @@ try:
         password=os.environ.get("DB_PASS"),
         database=os.environ.get("DB_NAME"),
     ) as connection:
-        '''colleges = []
+        colleges = []
         towns = []
         source = requests.get("https://en.wikipedia.org/wiki/List_of_colleges_and_universities_in_New_Jersey").text
         soup = BeautifulSoup(source, "lxml")
@@ -25,9 +25,13 @@ try:
         public_college_towns_in_nj = soup.find_all("table")[1].find_all("a", href=re.compile("\/wiki\/\w+,\w+"))
         private_college_towns_in_nj = soup.find_all("table")[2].find_all("a", href=re.compile("\/wiki\/\w+,\w+"))
         college_towns_in_nj = public_college_towns_in_nj + private_college_towns_in_nj
+        # print(soup.find_all("table")[3])
+        # get subset of non-public and private colleges and store them in the scraped_colleges table - like for profit colleges etc.
+        for_profit_college_towns = soup.find_all("table")[3].find_all("a", href=re.compile("\/wiki\/\w+,\w+"))
         for college_town_in_nj in college_towns_in_nj:
             town = college_town_in_nj.text
             town_university = college_town_in_nj.parent.parent.find("td").text
+            print(town_university)
             town_src = college_town_in_nj["href"]
             town_link = f'https://en.wikipedia.org{town_src}'
             town_source = requests.get(town_link).text
@@ -42,12 +46,18 @@ try:
             # t_e could be None
             town_land_area = float(soup.find("th", class_="infobox-label", string=re.compile("Land")).next_sibling.text.split()[0])
             # town_area_code = soup.find("th", class_="infobox-label", string=re.compile("Land")).next_sibling.text
-
-            college_row = (town_university, town)
             town_row = (town, town_population, town_area, town_water_area, town_land_area, town_elevation)
-            colleges.append(college_row)
             towns.append(town_row)
-        '''
+
+        # Now add more colleges from NJ into the scraped_colleges table 
+        college_towns_in_nj = college_towns_in_nj + for_profit_college_towns
+
+        for college_town_in_nj in college_towns_in_nj:
+            town = college_town_in_nj.text
+            town_university = college_town_in_nj.parent.parent.find("td").text
+            college_row = (town_university, town)
+            colleges.append(college_row)
+
         '''create_movies_table_query = """
         CREATE TABLE movies(
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -177,12 +187,22 @@ try:
             town VARCHAR(100),
             FOREIGN KEY(town) REFERENCES scraped_towns(town)
         )"""
-
+        # TRUNCATE college table here 
+        delete_colleges_table_query = """
+            DELETE FROM scraped_colleges
+        """
+        
+        add_column_to_colleges_table_query = """
+            ALTER TABLE scraped_colleges
+            ADD COLUMN town VARCHAR(100)
+        """
+        '''
         insert_scraped_colleges_query = """
         INSERT INTO scraped_colleges
         (college, town)
         VALUES (%s, %s)
         ON DUPLICATE KEY UPDATE
+        college = VALUES(college),
         town = VALUES(town)
         """
         insert_scraped_towns_query = """
@@ -196,21 +216,7 @@ try:
         land_area = VALUES(land_area),
         elevation_in_ft = VALUES(elevation_in_ft)
         """
-        '''
-        # TRUNCATE college table here 
-        delete_colleges_table_query = """
-            DELETE FROM scraped_colleges
-        """
-        # ALTER college table here 
-        alter_colleges_table_query = """
-            ALTER TABLE scraped_colleges
-            DROP COLUMN town
-        """
-        add_column_to_colleges_table_query = """
-            ALTER TABLE scraped_colleges
-            ADD COLUMN town VARCHAR(100)
-        """
-        show_table_query = "SELECT CONSTRAINT_NAME from INFORMATION_SCHEMA.TABLE_CONSTRAINTS where TABLE_NAME = 'scraped_colleges'"
+        select_query = "SELECT * FROM scraped_colleges"
         with connection.cursor() as cursor:
             '''cursor.execute(create_movies_table_query)
             cursor.execute(create_reviewers_table_query)
@@ -220,21 +226,20 @@ try:
             cursor.executemany(insert_ratings_query, ratings_records)
             cursor.execute(create_towns_table_query)
             cursor.execute(create_colleges_table_query)
-            cursor.executemany(insert_scraped_towns_query, towns)
-            cursor.executemany(insert_scraped_colleges_query, colleges)
             # A transaction in MySQL is a sequential group of statements, queries, or operations such as select, insert, update or delete to perform as a one single work unit that can be committed or rolled back
             # commit or rollback the transaction
-            cursor.execute(delete_colleges_table_query)'''
+            cursor.execute(delete_colleges_table_query)
             #cursor.execute(alter_colleges_table_query)
-            '''connection.commit()'''
-            cursor.execute(add_column_to_colleges_table_query)
-            '''cursor.execute(show_table_query)
-            # cursor.execute(select_query)
+            cursor.execute(add_column_to_colleges_table_query)'''
+            cursor.executemany(insert_scraped_towns_query, towns)
+            cursor.executemany(insert_scraped_colleges_query, colleges)
+            connection.commit()
+            # cursor.execute(show_table_query)
+            cursor.execute(select_query)
             result = cursor.fetchall()
             # print("Movie Table Schema after alteration:")
             for row in result:
                 print(row)
-                '''
         
 except Error as e:
     print(e)
