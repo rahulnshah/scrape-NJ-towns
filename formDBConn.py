@@ -31,13 +31,19 @@ try:
         for college_town_in_nj in college_towns_in_nj:
             town = college_town_in_nj.text
             town_university = college_town_in_nj.parent.parent.find("td").text
-            print(town_university)
+            # print(town_university)
             town_src = college_town_in_nj["href"]
             town_link = f'https://en.wikipedia.org{town_src}'
             town_source = requests.get(town_link).text
             soup = BeautifulSoup(town_source, "lxml")
-            town_area = float(soup.find_all("th",string=re.compile("Total"))[0].next_sibling.text.split()[0])
-            town_population = int(soup.find_all("th",string=re.compile("Total"))[1].next_sibling.text.replace(',',''))
+            matched_area = soup.find_all("th",string=re.compile("Total"))
+            town_area = None
+            if len(matched_area) > 0:
+                town_area = float(matched_area[0].next_sibling.text.split()[0])
+            matched_population = soup.find_all("th",string=re.compile("Total"))
+            town_population = None
+            if len(matched_population) > 0:
+                town_population = int(matched_population[1].next_sibling.text.replace(',',''))
             town_water_area = soup.find("th", class_="infobox-label", string=re.compile("Water")).next_sibling.text.split()[0]
             matched_things =  soup.find_all("td", class_="infobox-data", string=re.compile("m\)"))
             town_elevation = None
