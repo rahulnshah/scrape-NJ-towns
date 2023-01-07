@@ -1,9 +1,50 @@
-{% load static %}
+{% extends 'njtowns/base_template.html' %}
 
-<link rel="stylesheet" href="{% static 'njtowns/style.css' %}">
+{% block content %}
+{% if list_of_colleges_and_towns_they_are_in %}
+<h1>Displaying Colleges and Towns They Are In</h1>
+<table>
+    <tr>
+        <th>college</th>
+        <th>town</th>
+    </tr>
+    {% for entry in list_of_colleges_and_towns_they_are_in %}
+    <tr>
+        <td>{{ entry.college }}</td>
+        <td>{{ entry.town }}</td>
+        {% for town in towns %}
+            {% if town.town == entry.town %}
+                <td>{{ town.population }}</td>
+                <td>{{ town.area_in_sq_mi }}</td>
+                <td>{{ town.water_area }}</td>
+                <td>{{ town.land_area }}</td>
+                <td>{{ town.elevation_in_ft }}</td>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+
+</table>
+{% else %}
+<p>No colleges in NJ are available.</p>
+{% endif %}
+
+{% if towns %}
+<h1>Subset of NJ Towns containing public or private colleges</h1>
+<table>
+    {% for entry in towns %}
+    <tr>
+        <td>{{ entry.town }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+{% else %}
+<p>No towns in NJ are available.</p>
+{% endif %}
 
 {% if town_to_num_of_colleges %}
-<h1>NJ Town to Number of Colleges</h1>
+<h1>NJ Town to Number of Private or Public or For-profit Colleges</h1>
 <table>
     <tr>
         <th>town</th>
@@ -15,36 +56,10 @@
         <td>{{ entry.num_of_colleges }}</td>
     </tr>
     {% endfor %}
-    
+
 </table>
 {% else %}
-    <p>No colleges in NJ are available.</p>
+<p>No colleges in NJ are available.</p>
 {% endif %}
-{% if list_of_colleges_and_towns_they_are_in %}
-<h1>Displaying Colleges and Towns They Are In</h1>
-<table>
-    <tr>
-        <th>college</th>
-        <th>town</th>
-        <th>population</th>
-        <th>area_in_sq_mi</th>
-        <th>water_area</th>
-        <th>land_area</th>
-        <th>elevation_in_ft</th>
-    </tr>
-    {% for entry in list_of_colleges_and_towns_they_are_in %}
-    <tr>
-        <td>{{ entry.college }}</td>
-        <td>{{ entry.town.town }}</td>
-        <td>{{ entry.town.population }}</td>
-        <td>{{ entry.town.area_in_sq_mi }}</td>
-        <td>{{ entry.town.water_area }}</td>
-        <td>{{ entry.town.land_area }}</td>
-        <td>{{ entry.town.elevation_in_ft }}</td>
-    </tr>
-    {% endfor %}
-    
-</table>
-{% else %}
-    <p>No colleges in NJ are available.</p>
-{% endif %}
+
+{% endblock %}

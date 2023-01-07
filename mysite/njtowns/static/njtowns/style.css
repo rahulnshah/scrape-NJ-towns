@@ -1,4 +1,19 @@
-table, th, td {
-    border:1px solid black;
-  }
-  
+body {
+    background-image: url('university-background.jpg');
+    background-repeat: no-repeat;
+    background-size: 1200px 700px;
+    background-attachment: fixed;
+    background-position: top;
+}
+
+table,
+th,
+td {
+    color: white;
+    border: 1px solid white;
+    width: 100%;
+}
+
+h1{
+    color:greenyellow;
+}
