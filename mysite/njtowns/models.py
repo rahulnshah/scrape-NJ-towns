@@ -10,11 +10,12 @@ from django.db import models
 
 class ScrapedColleges(models.Model):
     college = models.CharField(primary_key=True, max_length=100)
-    town = models.ForeignKey('ScrapedTowns', models.DO_NOTHING, db_column='town', blank=True, null=True)
+    town = models.CharField(max_length=100)
 
     class Meta:
         managed = False
         db_table = 'scraped_colleges'
+        unique_together = (('college', 'town'),)
 
 
 class ScrapedTowns(models.Model):

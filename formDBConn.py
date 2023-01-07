@@ -63,6 +63,7 @@ try:
             town_university = college_town_in_nj.parent.parent.find("td").text
             college_row = (town_university, town)
             colleges.append(college_row)
+        
 
         '''create_movies_table_query = """
         CREATE TABLE movies(
@@ -178,6 +179,7 @@ try:
             (6.4, 5, 10), (8.1, 5, 21), (5.7, 22, 1), (6.3, 28, 4),
             (9.8, 13, 1)
         ]
+        '''
         create_towns_table_query = """
         CREATE TABLE scraped_towns(
             town VARCHAR(100) PRIMARY KEY,
@@ -189,10 +191,11 @@ try:
         )"""
         create_colleges_table_query = """
         CREATE TABLE scraped_colleges(
-            college VARCHAR(100) PRIMARY KEY, 
+            college VARCHAR(100), 
             town VARCHAR(100),
-            FOREIGN KEY(town) REFERENCES scraped_towns(town)
+            PRIMARY KEY(college, town)
         )"""
+        
         # TRUNCATE college table here 
         delete_colleges_table_query = """
             DELETE FROM scraped_colleges
@@ -202,7 +205,7 @@ try:
             ALTER TABLE scraped_colleges
             ADD COLUMN town VARCHAR(100)
         """
-        '''
+
         insert_scraped_colleges_query = """
         INSERT INTO scraped_colleges
         (college, town)
@@ -222,7 +225,7 @@ try:
         land_area = VALUES(land_area),
         elevation_in_ft = VALUES(elevation_in_ft)
         """
-        select_query = "SELECT * FROM scraped_colleges"
+        select_query = "SELECT COUNT(*) FROM scraped_colleges"
         with connection.cursor() as cursor:
             '''cursor.execute(create_movies_table_query)
             cursor.execute(create_reviewers_table_query)
@@ -236,16 +239,20 @@ try:
             # commit or rollback the transaction
             cursor.execute(delete_colleges_table_query)
             #cursor.execute(alter_colleges_table_query)
-            cursor.execute(add_column_to_colleges_table_query)'''
+            cursor.execute(add_column_to_colleges_table_query)
+            cursor.executemany(insert_scraped_towns_query, towns)
+            cursor.executemany(insert_scraped_colleges_query, colleges)
+            cursor.execute(create_towns_table_query)
+            cursor.execute(create_colleges_table_query)'''
             cursor.executemany(insert_scraped_towns_query, towns)
             cursor.executemany(insert_scraped_colleges_query, colleges)
             connection.commit()
             # cursor.execute(show_table_query)
-            cursor.execute(select_query)
+            '''cursor.execute(select_query)
             result = cursor.fetchall()
             # print("Movie Table Schema after alteration:")
             for row in result:
-                print(row)
+                print(row)'''
         
 except Error as e:
     print(e)
