@@ -3,12 +3,10 @@
 [X] Milestone 1: Intro & Getting Used to `mysql-connector`
   - Set up remote MySQL via VSCode 
   - Learn how to connect to mysql DB with python `mysql-connector`
-  - Pull requests
 
 [X] Milestone 2: Getting Used to Beautiful Soup & Backend 
   - Scrape Info on towns in NJ from Wikipedia
   - Scrape Colleges (private, public, & for-profit) in NJ from Wikipedia
-  - Pull requests
   
 [X] Milestone 3: Frontend
   - Set up Django developement environment
@@ -18,4 +16,6 @@
   - Display nj towns and number of colleges in each town 
     - Use GROUP BY clause on `scraped_colleges`
   - Pull requests
+    - https://github.com/rahulnshah/scrape-NJ-towns/pull/1
+    - https://github.com/rahulnshah/scrape-NJ-towns/pull/3
 
